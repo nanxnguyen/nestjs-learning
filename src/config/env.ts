@@ -1,0 +1,13 @@
+export const urlAssets = process.env.URL_ASSETS;
+export const ZALO_APP_ID = process.env.ZALO_APP_ID;
+export const ZALO_KEY_1 = process.env.ZALO_KEY_1;
+export const ZALO_KEY_2 = process.env.ZALO_KEY_2;
+export const ENDPOINT_CREATE = process.env.ENDPOINT_CREATE;
+export const ENDPOINT_QUERY = process.env.ENDPOINT_QUERY;
+export const ENDPOINT_REFUND = process.env.ENDPOINT_REFUND;
+export const ENDPOINT_REFUND_STATUS = process.env.ENDPOINT_REFUND_STATUS;
+export const URL_SHOP = process.env.URL_SHOP;
+export const PAYMENT_METHOD_EWALETZL = process.env.PAYMENT_METHOD_EWALETZL;
+export const PAYMENT_METHOD_BANK = process.env.PAYMENT_METHOD_BANK;
+export const ZALO_CALLBACK = process.env.ZALO_CALLBACK;
+export const ZALO_REDIRECT = process.env.ZALO_REDIRECT;

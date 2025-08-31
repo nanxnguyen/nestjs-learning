@@ -5,6 +5,8 @@ import { EcontractController } from './econtract.controller';
 import { EcontractService } from './econtract.service';
 import { FptService } from './fpt/fpt.service';
 import { FileConverterService } from './utils/file-converter.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
