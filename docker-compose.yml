@@ -1,0 +1,62 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: learn_i_like
+    ports:
+      - '5433:5432' # Sử dụng port 5433 để tránh conflict với PostgreSQL local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d learn_i_like']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS Application
+  app:
+    image: learn-i-like:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3332:3332'
+    environment:
+      DATABASE_URL: 'postgresql://postgres:123456@postgres:5432/learn_i_like'
+      PORT: 3332
+      NODE_ENV: production
+      # FPT API Configuration (optional)
+      FPT_API_URL: 'https://demo.econtract.fpt.com/app/'
+      FPT_API_KEY: 'your-fpt-api-key'
+      EMAIL_ORGANIZATION: 'anh.nh@hsc.com.vn'
+      PERSONAL_NAME: 'Nguyen Hoang Anh'
+      TELEPHONE_ORGANIZATION: '0966941840'
+      CONTRACT_ID: 'HCSTEST'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: |
+      sh -c "
+        echo 'Waiting for database...'
+        sleep 10
+        echo 'Running Prisma migrations...'
+        npx prisma migrate deploy
+        echo 'Starting application...'
+        node dist/main.js
+      "
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

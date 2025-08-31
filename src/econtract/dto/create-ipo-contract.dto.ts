@@ -15,6 +15,13 @@ export class CreateIPORegistrationContractDto {
   })
   @IsString()
   clientCode: string;
+
+  @ApiProperty({
+    description: 'URL tài liệu hợp đồng (PDF)',
+    example: 'https://example.com/contract.pdf',
+  })
+  @IsString()
+  documentUrl: string;
 }
 
 export class DataCreateContractDto {

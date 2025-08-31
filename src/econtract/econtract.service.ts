@@ -33,7 +33,9 @@ export class EcontractService {
         );
 
       const response = await this.fptService.createIPOContract({
-        ...createIPOContractDto,
+        id: createIPOContractDto.id,
+        clientCode: createIPOContractDto.clientCode,
+        documentUrl: createIPOContractDto.documentUrl,
         convertB64FromUrl,
       });
 
