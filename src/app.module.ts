@@ -5,6 +5,7 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CategoryModule } from './category/category.module';
+import { CommonModule } from './common/common.module';
 import { EcontractModule } from './econtract/econtract.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UploadModule } from './upload/upload.module';
@@ -24,6 +25,7 @@ import { UploadModule } from './upload/upload.module';
     EcontractModule,
     CategoryModule,
     UploadModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],
