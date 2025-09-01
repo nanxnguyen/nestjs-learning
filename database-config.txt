@@ -1,0 +1,48 @@
+🎉 Google Cloud PostgreSQL Database Setup Complete!
+
+📋 Database Connection Details:
+==================================
+
+DATABASE_URL="postgresql://postgres:123456@34.126.176.255:5432/learn_i_like"
+
+Instance Details:
+- Instance Name: learn-i-like-postgres
+- Project: concrete-welder-470810-f7
+- Region: asia-southeast1-b
+- IP Address: 34.126.176.255
+- Database: learn_i_like
+- User: postgres
+- Password: 123456
+
+📝 Next Steps:
+==============
+
+1. Copy the DATABASE_URL above to your .env file:
+   echo 'DATABASE_URL="postgresql://postgres:123456@34.126.176.255:5432/learn_i_like"' > .env
+
+2. Test connection:
+   npx prisma db push
+
+3. Import admin data:
+   npm run seed:admin
+
+4. Import business data:
+   npm run seed
+
+5. Start Prisma Studio:
+   npx prisma studio
+
+🔧 Management Commands:
+======================
+
+View instance:
+gcloud sql instances describe learn-i-like-postgres
+
+Connect via psql:
+gcloud sql connect learn-i-like-postgres --user=postgres --database=learn_i_like
+
+Add more IPs to authorized networks:
+gcloud sql instances patch learn-i-like-postgres --authorized-networks=YOUR_IP/32
+
+Delete instance (if needed):
+gcloud sql instances delete learn-i-like-postgres
