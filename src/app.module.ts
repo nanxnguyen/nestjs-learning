@@ -7,7 +7,7 @@ import { AppService } from './app.service';
 import { CategoryModule } from './category/category.module';
 import { EcontractModule } from './econtract/econtract.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -20,9 +20,10 @@ import { UsersModule } from './users/users.module';
       serveRoot: '/assets',
     }),
     PrismaModule,
-    UsersModule,
+    // UsersModule,
     EcontractModule,
     CategoryModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

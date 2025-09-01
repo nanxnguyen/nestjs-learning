@@ -39,7 +39,7 @@ async function main() {
     await runSeedFile(path.join(seedDir, 'categories.js'), 'Categories');
     await runSeedFile(path.join(seedDir, 'supplier.js'), 'Suppliers');
     await runSeedFile(path.join(seedDir, 'method.js'), 'Payment Methods');
-    await runSeedFile(path.join(seedDir, 'product-fixed.js'), 'Products');
+    await runSeedFile(path.join(seedDir, 'product-complete.js'), 'Products');
 
     // Note: variant.js seems to add additional variants to existing products
     // await runSeedFile(path.join(seedDir, 'variant.js'), 'Additional Product Variants');

@@ -4,10 +4,14 @@ const prisma = new PrismaClient();
 
 async function main() {
   const products = await prisma.product.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
+    include: {
+      translations: {
+        where: {
+          language: 'vn'
+        },
+        take: 1
+      }
+    }
   });
 
   for (const product of products) {
@@ -15,7 +19,7 @@ async function main() {
       data: {
         productId: product.id,
         salesCount: 250,
-        name: 'Lên món đón trung thu - Mừng lễ trung thu 2024',
+        name: product.translations[0]?.name || 'Lên món đón trung thu - Mừng lễ trung thu 2024',
         period: 'Quý 2 năm 2024',
       },
     });
