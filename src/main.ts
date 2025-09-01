@@ -50,10 +50,6 @@ async function bootstrap() {
 
   console.log(`🚀 Server running on http://localhost:${port}`);
   console.log(`📚 Swagger UI: http://localhost:${port}/api`);
-  console.log(`📊 Health: http://localhost:${port}/health`);
-  console.log(`🍪 Cookie parser enabled`);
-  console.log(`✅ ValidationPipe enabled`);
-  console.log(`📖 Swagger docs ready!`);
 }
 
 bootstrap();

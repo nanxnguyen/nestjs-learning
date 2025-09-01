@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CategoryModule } from './category/category.module';
 import { EcontractModule } from './econtract/econtract.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     UsersModule,
     EcontractModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

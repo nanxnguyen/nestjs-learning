@@ -11,29 +11,380 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model tương tự như TypeORM entity
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
-  phone     String?
-  posts     Post[]   // Relation to posts
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("users")
+model Supplier {
+  id        String    @id @default(uuid())
+  name      String
+  contact   String
+  email     String    @unique
+  address   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
 }
 
-// Model mẫu khác để demo
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  Int?     @map("author_id")
-  author    User?    @relation(fields: [authorId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  productId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+}
 
-  @@map("posts")
+model User {
+  id           String    @id @default(uuid())
+  username     String?
+  email        String?
+  displayName  String?
+  phone        String    @unique
+  address      String?
+  passwordHash String?
+  avatarUrl    String?
+  authType     AuthType
+  userRole     UserRole  @default(CUSTOMER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  addresses    Address[]
+}
+
+model Address {
+  id           String   @id @default(uuid())
+  userPhone    String
+  name         String?
+  tel          String?
+  provinceCode String
+  districtCode String
+  wardCode     String
+  address      String
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userPhone], references: [phone])
+}
+
+model Staff {
+  id             String     @id @default(uuid())
+  username       String?    @unique
+  email          String?    @unique
+  displayName    String?
+  phone          String     @unique
+  address        String?
+  passwordHash   String?
+  avatarUrl      String?
+  authType       AuthType?
+  userRole       String?
+  userPermission UserRole[] @default([])
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+}
+
+model Order {
+  id                 String         @id @default(uuid())
+  phone              String
+  orderNumber        Int?           @unique
+  totalAmount        Decimal
+  discountPercentage Decimal?
+  discountAmount     Decimal?
+  netTotalAmount     Decimal?
+  status             OrderStatus
+  type               OrderType      @default(ONLINE)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  orderItems         OrderItem[]
+  txID               String?
+  customerName       String
+  email              String
+  provinceCode       String
+  districtCode       String
+  wardCode           String
+  address            String?
+  note               String?
+  paymentMethodCode  String?
+  shipingFee         Decimal?
+  paymentMethod      PaymentMethod? @relation(fields: [paymentMethodCode], references: [methodCode]) // Establish relation
+}
+
+model OrderItem {
+  id        String          @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  variantId String? // Add the variantId field here
+  unitPrice Decimal
+  drawPrice Decimal?
+  taxFee    Decimal?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  order     Order           @relation(fields: [orderId], references: [id])
+  product   Product         @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+}
+
+model ProductCodeSequence {
+  id       Int @id @default(1)
+  sequence Int
+}
+
+model ProductTranslation {
+  id                  String  @id @default(uuid())
+  productId           String
+  language            String // Example: "en" for English, "vi" for Vietnamese
+  name                String
+  description         String
+  detailedDescription String?
+  usageInstructions   String?
+  product             Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, language]) // Ensures unique translation per language per product
+}
+
+model ProductVariant {
+  id                String         @id @default(uuid())
+  name              String
+  price             Decimal
+  priceIncludingTax Decimal?
+  stock             Int
+  weight            Decimal?
+  unit              String
+  productState      ProductState[] @default([])
+  productId         String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  product           Product        @relation("ProductVariants", fields: [productId], references: [id])
+  promotions        Promotion[]
+  OrderItem         OrderItem[]
+  isArchived        Boolean?
+}
+
+model Promotion {
+  id               String         @id @default(uuid())
+  discount         Decimal
+  startDate        DateTime
+  endDate          DateTime
+  description      String?
+  promotionName    String?
+  promotionCode    String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id           String    @id @default(uuid())
+  name         String
+  urlImage     String
+  pathName     String?
+  isArchived   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  mainProducts Product[]
+  products     Product[] @relation("ProductCategories")
+}
+
+model Image {
+  id        String   @id @default(uuid())
+  productId String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id             String    @id @default(uuid())
+  origin         String
+  expirationDate DateTime?
+  supplierId     String
+  isFeatured     Boolean   @default(false)
+  isArchived     Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  productCode    String    @unique
+  categoryId     String?
+  totalWeight    Decimal?
+
+  // Relationships
+  bestSellers  BestSeller[]
+  images       Image[]
+  orders       OrderItem[]
+  category     Category?            @relation(fields: [categoryId], references: [id])
+  supplier     Supplier             @relation(fields: [supplierId], references: [id])
+  variants     ProductVariant[]     @relation("ProductVariants")
+  reviews      Review[]
+  categories   Category[]           @relation("ProductCategories")
+  translations ProductTranslation[]
+  taxes        ProductTax[]         @relation("ProductToTaxes") // Many-to-many relation
+}
+
+model Tax {
+  id          String   @id @default(uuid())
+  name        String
+  fee         Decimal
+  description String
+  effectFrom  DateTime
+  effectTo    DateTime
+
+  products ProductTax[] @relation("TaxToProducts") // Many-to-many relation
+}
+
+model ProductTax {
+  productId String
+  taxId     String
+
+  product Product @relation("ProductToTaxes", fields: [productId], references: [id])
+  tax     Tax     @relation("TaxToProducts", fields: [taxId], references: [id])
+
+  @@id([productId, taxId]) // Composite primary key
+}
+
+model Upload {
+  id        String   @id @default(uuid())
+  urlImage  String
+  tag       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BestSeller {
+  id         String   @id @default(uuid())
+  productId  String
+  salesCount Int
+  updatedAt  DateTime @updatedAt
+  name       String?
+  period     String?
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model SearchQuery {
+  id    String @id @default(uuid())
+  query String
+}
+
+model PaymentMethod {
+  id          String   @id @default(uuid()) // ID as UUID
+  methodName  String   @unique // Name of the payment method
+  methodType  String // Type of payment method (e.g., "COD", "Bank Transfer", "Card Payment", "E-wallet")
+  methodCode  String   @unique // Unique code for the payment method
+  paymentInfo Json?
+  isActive    Boolean  @default(true) // Flag to indicate if the payment method is active
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[] // Relation back to the Order model
+}
+
+model AdministrativeRegions {
+  id        Int         @id(map: "administrative_regions_pkey")
+  name      String      @db.VarChar(255)
+  codeName  String?     @db.VarChar(255)
+  Provinces Provinces[]
+}
+
+model AdministrativeUnits {
+  id        Int         @id(map: "administrative_units_pkey")
+  fullName  String?     @db.VarChar(255)
+  shortName String?     @db.VarChar(255)
+  codeName  String?     @db.VarChar(255)
+  Districts Districts[]
+  Provinces Provinces[]
+  Wards     Wards[]
+}
+
+model Districts {
+  code                   String               @id(map: "districts_pkey") @db.VarChar(20)
+  name                   String               @db.VarChar(255)
+  fullName               String?              @db.VarChar(255)
+  codeName               String?              @db.VarChar(255)
+  provinceCode           String?              @db.VarChar(20)
+  administrative_unit_id Int?
+  AdministrativeUnits    AdministrativeUnits? @relation(fields: [administrative_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "districts_administrative_unit_id_fkey")
+  Provinces              Provinces?           @relation(fields: [provinceCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "districts_province_code_fkey")
+  Wards                  Wards[]
+
+  @@index([provinceCode], map: "idx_districts_province")
+  @@index([administrative_unit_id], map: "idx_districts_unit")
+}
+
+model Provinces {
+  code                     String                 @id(map: "provinces_pkey") @db.VarChar(20)
+  name                     String                 @db.VarChar(255)
+  fullName                 String                 @db.VarChar(255)
+  codeName                 String?                @db.VarChar(255)
+  administrative_unit_id   Int?
+  administrative_region_id Int?
+  Districts                Districts[]
+  AdministrativeRegions    AdministrativeRegions? @relation(fields: [administrative_region_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "provinces_administrative_region_id_fkey")
+  AdministrativeUnits      AdministrativeUnits?   @relation(fields: [administrative_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "provinces_administrative_unit_id_fkey")
+
+  @@index([administrative_region_id], map: "idx_provinces_region")
+  @@index([administrative_unit_id], map: "idx_provinces_unit")
+}
+
+model Wards {
+  code                   String               @id(map: "wards_pkey") @db.VarChar(20)
+  name                   String               @db.VarChar(255)
+  nameEn                 String?              @db.VarChar(255)
+  fullName               String?              @db.VarChar(255)
+  fullNameEn             String?              @db.VarChar(255)
+  codeName               String?              @db.VarChar(255)
+  districtCode           String?              @db.VarChar(20)
+  administrative_unit_id Int?
+  AdministrativeUnits    AdministrativeUnits? @relation(fields: [administrative_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "wards_administrative_unit_id_fkey")
+  Districts              Districts?           @relation(fields: [districtCode], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "wards_district_code_fkey")
+
+  @@index([districtCode], map: "idx_wards_district")
+  @@index([administrative_unit_id], map: "idx_wards_unit")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPING
+  DELIVERED
+  CANCELED
+}
+
+enum AuthType {
+  GOOGLE
+  EMAIL
+}
+
+enum OrderType {
+  ONLINE
+  ATCOUNTER
+}
+
+enum ProductState {
+  INSTOCK
+  OUTOFSTOCK
+  DISCONTINUED
+  ONLINEONLY
+  OFFLINEONLY
+  IMPORTINGGOODS
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  CUSTOMER
+  PRODUCT_MANAGER
+  WAREHOUSE_STAFF
+  ORDER_MANAGER
+  ACCOUNTANT
+  SALES_STAFF
 }
